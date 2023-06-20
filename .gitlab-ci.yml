@@ -1,0 +1,21 @@
+---
+default:
+  image: docker:stable
+  tags:
+    - graylog-runner
+
+stages:
+  - deploy
+
+deploy:graylog:
+  stage: deploy
+  when: manual
+  variables:
+    GRAYLOG_HTTP_EXTERNAL_URI: "https://graylog.devops-project.site/"
+  before_script:
+    - cp ${CI_GRAYLOG_ROOT_PASSWORD_SHA2_FILE} graylog.d/secrets/GRAYLOG_ROOT_PASSWORD_SHA2.txt
+    - cp ${CI_GRAYLOG_PASSWORD_SECRET_FILE} graylog.d/secrets/GRAYLOG_PASSWORD_SECRET.txt
+  script:
+    - docker stack deploy --with-registry-auth -c docker-compose.yml graylog
+  after_script:
+    - sleep 180
